@@ -9,39 +9,47 @@ from app.detectors.homoglyph import detect_homoglyph
 from app.detectors.subdomain import detect_excessive_subdomains
 from app.detectors.login_pattern import detect_login_pattern
 
-from app.grammar.parser import GrammarParser
+from app.grammar.legitimate import LEGITIMATE_GRAMMAR
+from app.grammar.membership import CFGMembershipChecker
 
 
 class URLAnalyzer:
 
     def __init__(self):
+
         self.dfa = URLDFA()
+
         self.tokenizer = URLTokenizer()
-        self.parser = GrammarParser()
+
+        self.cfg_checker = CFGMembershipChecker(
+            LEGITIMATE_GRAMMAR
+        )
 
     def analyze(self, url: str):
 
-        # -------------------------
+        # ==========================================
         # 1. DFA VALIDATION
-        # -------------------------
+        # ==========================================
 
         valid, state_path = self.dfa.process(url)
 
         if not valid:
+
             return {
                 "url": url,
                 "verdict": "INVALID",
                 "attack_type": None,
-                "rule": None,
+                "rule": "DFA_REJECT",
                 "tokens": [],
                 "state_path": state_path,
+                "grammar_membership": False,
                 "parse_tree": None,
-                "explanation": "Invalid URL structure."
+                "explanation": "The URL does not follow a valid URL structure."
             }
 
-        # -------------------------
+        # ==========================================
         # 2. TOKENIZATION
-        # -------------------------
+        # ==========================================
 
         tokens = self.tokenizer.tokenize(url)
 
@@ -53,18 +61,27 @@ class URLAnalyzer:
             for token in tokens
         ]
 
-        # -------------------------
-        # 3. URL COMPONENTS
-        # -------------------------
+        # ==========================================
+        # 3. CFG MEMBERSHIP
+        # ==========================================
+
+        grammar_accepted, parse_tree = (
+            self.cfg_checker.check(tokens)
+        )
+
+        # ==========================================
+        # 4. URL INFORMATION
+        # ==========================================
 
         parsed = urlparse(url)
 
         host = parsed.hostname or ""
+
         path = parsed.path or ""
 
-        # -------------------------
-        # 4. PHISHING DETECTORS
-        # -------------------------
+        # ==========================================
+        # 5. PHISHING DETECTORS
+        # ==========================================
 
         detectors = [
 
@@ -76,8 +93,10 @@ class URLAnalyzer:
 
             detect_excessive_subdomains(host),
 
-            detect_login_pattern(host, path)
-
+            detect_login_pattern(
+                host,
+                path
+            )
         ]
 
         detected = next(
@@ -89,43 +108,68 @@ class URLAnalyzer:
             None
         )
 
-        # -------------------------
-        # 5. PARSE TREE
-        # -------------------------
-
-        parse_tree = self.parser.build_tree(tokens)
-
-        # -------------------------
+        # ==========================================
         # 6. FINAL VERDICT
-        # -------------------------
+        # ==========================================
 
         if detected:
 
             verdict = "SUSPICIOUS"
 
             attack_type = detected.attack_type
+
             rule = detected.rule
+
             explanation = detected.explanation
+
+        elif not grammar_accepted:
+
+            verdict = "SUSPICIOUS"
+
+            attack_type = "GRAMMAR_VIOLATION"
+
+            rule = "CFG_REJECT"
+
+            explanation = (
+                "The URL passed lexical validation but "
+                "does not belong to the legitimate URL grammar."
+            )
 
         else:
 
             verdict = "LIKELY_LEGITIMATE"
 
             attack_type = None
+
             rule = "LEGITIMATE_URL"
 
             explanation = (
-                "The URL matches the expected legitimate URL structure "
-                "and no implemented phishing rule was triggered."
+                "The URL was accepted by the DFA and "
+                "belongs to the legitimate URL grammar. "
+                "No implemented phishing rule was triggered."
             )
 
+        # ==========================================
+        # 7. RETURN RESULT
+        # ==========================================
+
         return {
+
             "url": url,
+
             "verdict": verdict,
+
             "attack_type": attack_type,
+
             "rule": rule,
+
             "tokens": token_dict,
+
             "state_path": state_path,
-            "parse_tree": parse_tree.to_dict(),
+
+            "grammar_membership": grammar_accepted,
+
+            "parse_tree": parse_tree,
+
             "explanation": explanation
         }

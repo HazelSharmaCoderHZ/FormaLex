@@ -25,7 +25,11 @@ class URLTokenizer:
         if "://" in url:
             tokens.append(Token("SEPARATOR", "://"))
 
-        host = parsed.hostname or ""
+        # Host
+        try:
+            host = parsed.hostname or ""
+        except ValueError:
+            host = ""
 
         # IP detection
         if self.is_ipv4(host):
@@ -44,12 +48,17 @@ class URLTokenizer:
                 tokens.append(Token("DOT", "."))
                 tokens.append(Token("TLD", host_parts[-1]))
 
-            elif host_parts:
+            elif host_parts and host_parts[0]:
                 tokens.append(Token("DOMAIN", host_parts[0]))
 
         # Port
-        if parsed.port:
-            tokens.append(Token("PORT", str(parsed.port)))
+        try:
+            port = parsed.port
+        except ValueError:
+            port = None
+
+        if port:
+            tokens.append(Token("PORT", str(port)))
 
         # Path
         if parsed.path:
