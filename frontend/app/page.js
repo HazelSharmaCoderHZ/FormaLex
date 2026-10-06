@@ -116,6 +116,56 @@ export default function Home() {
           </section>
 
           <section className="card">
+              <h3>Formal Language Analysis</h3>
+
+              <div className="formal-grid">
+
+                <div className="formal-item">
+                  <span>Legitimate CFG</span>
+                  <strong
+                    className={
+                      result.grammar_membership ? "safe" : "danger"
+                    }
+                  >
+                    {result.grammar_membership
+                      ? "ACCEPTED"
+                      : "REJECTED"}
+                  </strong>
+                </div>
+
+                <div className="formal-item">
+                  <span>Phishing Grammars</span>
+                  <strong>
+                    {result.phishing_grammar_matches?.length || 0}
+                    {" "}matched
+                  </strong>
+                </div>
+
+              </div>
+
+              {result.phishing_grammar_matches?.length > 0 && (
+                <div className="grammar-matches">
+
+                  <p className="section-label">
+                    MATCHED PHISHING GRAMMARS
+                  </p>
+
+                  {result.phishing_grammar_matches.map(
+                    (match, index) => (
+                      <div
+                        className="grammar-match"
+                        key={index}
+                      >
+                        {match.type}
+                      </div>
+                    )
+                  )}
+
+                </div>
+              )}
+            </section>
+
+          <section className="card">
             <h3>URL Tokens</h3>
 
             <div className="tokens">
@@ -145,9 +195,13 @@ export default function Home() {
           </section>
 
           <section className="card">
-            <h3>Parse Tree</h3>
+            <h3>CFG Parse Tree</h3>
 
-            <ParseTree node={result.parse_tree} />
+            {result.parse_tree ? (
+              <ParseTree node={result.parse_tree} />
+            ) : (
+              <p>No parse tree available.</p>
+            )}
           </section>
 
         </div>
@@ -156,22 +210,27 @@ export default function Home() {
   );
 }
 
-
 function ParseTree({ node, level = 0 }) {
   if (!node) return null;
 
   return (
-    <div className="tree-node" style={{ marginLeft: level * 25 }}>
+    <div
+      className="tree-node"
+      style={{ marginLeft: `${level * 30}px` }}
+    >
       <div className="tree-box">
-        {node.symbol}
+        <strong>{node.symbol}</strong>
       </div>
 
       {node.children?.map((child, index) => (
-        <ParseTree
-          key={index}
-          node={child}
-          level={level + 1}
-        />
+        <div key={index}>
+          <div className="tree-connector">↓</div>
+
+          <ParseTree
+            node={child}
+            level={level + 1}
+          />
+        </div>
       ))}
     </div>
   );

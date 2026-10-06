@@ -5,7 +5,16 @@ BASE_URL = "http://127.0.0.1:8000/analyze"
 
 
 TEST_URLS = [
-
+    "https://www.google.com",
+    "https://secure.login.google.com/account",
+    "https://example.com/a/b/c",
+    "https://example.com/login?user=123",
+    "ftp://example.com",
+    "https://",
+    "hello",
+    "https://999.999.999.999/login",
+    "https://pay-pal.com",
+    "https://g00g1e.com/login",
     # Legitimate
     "https://example.com",
     "https://google.com",
