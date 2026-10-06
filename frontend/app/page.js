@@ -37,7 +37,7 @@ export default function Home() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await fetch(API, {
+      const res = await fetch(`${API}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
