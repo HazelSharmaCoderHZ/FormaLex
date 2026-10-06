@@ -18,6 +18,7 @@ const pretty = (v = "") => {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
+
 const colorMap = (tokens = []) => {
   const m = {};
   tokens.forEach((t) => {
