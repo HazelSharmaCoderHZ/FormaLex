@@ -1,44 +1,60 @@
-# FormaLex
+# 🔐 FormaLex
 
-## Grammar-Based URL Phishing Detection Using Finite Automata
+### Grammar-Based URL Phishing Detection Using Finite Automata
 
-FormaLex is a web-based URL phishing detection system based on formal language concepts.
+> An explainable URL phishing detection system that combines **Finite Automata, Context-Free Grammars, lexical analysis, and rule-based security detection**.
 
-Instead of depending mainly on machine learning, FormaLex analyzes URL structure using:
-
-- DFA-based URL analysis
-- URL lexical tokenization
-- Grammar-based URL representation
-- Membership-style rule checking
-- Phishing pattern detection
-- Automaton state tracing
-- Parse tree generation
-- Explainable detection results
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![Next.js](https://img.shields.io/badge/Next.js-Frontend-black)
+![Automata](https://img.shields.io/badge/Finite%20Automata-DFA%20%7C%20CFG-purple)
 
 ---
 
-## Architecture
+# 📖 Overview
+
+FormaLex analyzes URLs using formal language concepts to determine whether they are **likely legitimate, suspicious, or invalid**.
+
+The system validates URL structure using a **DFA**, converts URLs into lexical tokens, checks **CFG membership**, and applies phishing detection rules.
+
+---
+
+# ✨ Features
+
+- 🔄 DFA-based URL validation
+- 🔤 URL lexical tokenization
+- 📚 Legitimate URL CFG
+- 🚨 Phishing grammars
+- 🔍 Typosquatting & Leetspeak detection
+- 🌐 IP-as-domain detection
+- 🧬 Homoglyph / mixed-script detection
+- 🌳 Excessive subdomain detection
+- 🔑 Suspicious login-pattern detection
+- 🌳 Explainable CFG parse trees
+- 🧭 DFA state-path visualization
+
+---
+
+# 🏗️ Architecture
 
 ```text
-URL Input
-    |
-    v
-URL Normalization
-    |
-    v
-DFA Lexer
-    |
-    v
-Tokenization
-    |
-    v
-Grammar / Phishing Rules
-    |
-    v
-Membership Checking
-    |
-    v
-State Path + Parse Tree
-    |
-    v
-Final Verdict
+             URL
+              │
+              ▼
+          ┌───────┐
+          │  DFA  │
+          └───┬───┘
+              │
+              ▼
+         Tokenization
+              │
+       ┌──────┴──────┐
+       ▼             ▼
+ Legitimate CFG   Phishing CFGs
+       │             │
+       └──────┬──────┘
+              ▼
+       Security Rules
+              │
+              ▼
+           Verdict
