@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 
-const API = "http://127.0.0.1:8000/analyze";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://127.0.0.1:8000";
 const INKS = ["#2E7D6A", "#3B4C8A", "#B9821F", "#A63446", "#6B5B95", "#2F7F9E", "#7A8B3A", "#8A5A44"];
 const EXAMPLES = [
   ["Legitimate", "https://example.com/products"],
